@@ -1,0 +1,788 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Interactive Periodic Table</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: white;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #020617, #0f172a, #172554);
+    background-size: 400% 400%;
+    animation: background 15s ease infinite;
+}
+
+@keyframes background {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+header {
+    text-align: center;
+    padding: 25px 10px;
+}
+
+header h1 {
+    color: #38bdf8;
+    font-size: 40px;
+    margin-bottom: 8px;
+    text-shadow: 0 0 20px #0284c7;
+}
+
+header p {
+    color: #cbd5e1;
+}
+
+.search {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+#search {
+    width: 90%;
+    max-width: 600px;
+    padding: 15px;
+    border-radius: 30px;
+    border: 2px solid #38bdf8;
+    background: #020617;
+    color: white;
+    font-size: 16px;
+    outline: none;
+}
+
+.table-container {
+    width: 98%;
+    margin: auto;
+    overflow-x: auto;
+}
+
+.table {
+    display: grid;
+    grid-template-columns: repeat(18, 70px);
+    grid-template-rows: repeat(9, 90px);
+    gap: 5px;
+    width: max-content;
+    margin: auto;
+}
+
+.element {
+    border-radius: 8px;
+    padding: 5px;
+    cursor: pointer;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,.3);
+    transition: .25s;
+}
+
+.element:hover {
+    transform: scale(1.08);
+    box-shadow: 0 0 20px #38bdf8;
+    z-index: 5;
+}
+
+.number {
+    font-size: 11px;
+    text-align: left;
+}
+
+.symbol {
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.name {
+    font-size: 10px;
+}
+
+.mass {
+    font-size: 9px;
+    opacity: .8;
+}
+
+/* Element colors */
+
+.alkali { background: #b91c1c; }
+.alkaline { background: #c2410c; }
+.transition { background: #1d4ed8; }
+.post { background: #0891b2; }
+.metalloid { background: #047857; }
+.nonmetal { background: #15803d; }
+.halogen { background: #7e22ce; }
+.noble { background: #be185d; }
+.lanthanide { background: #a16207; }
+.actinide { background: #92400e; }
+
+/* Details */
+
+#details {
+    display: none;
+    width: 90%;
+    max-width: 900px;
+    margin: 35px auto;
+    padding: 25px;
+    border-radius: 20px;
+    background: rgba(15,23,42,.95);
+    border: 2px solid #38bdf8;
+    box-shadow: 0 0 30px rgba(56,189,248,.3);
+}
+
+#details.show {
+    display: block;
+}
+
+.close {
+    float: right;
+    background: #dc2626;
+    border: none;
+    color: white;
+    padding: 8px 14px;
+    border-radius: 7px;
+    cursor: pointer;
+}
+
+.element-header {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    margin-bottom: 25px;
+}
+
+.big-symbol {
+    width: 120px;
+    height: 120px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.big-symbol b {
+    font-size: 50px;
+}
+
+.element-header h2 {
+    color: #38bdf8;
+    font-size: 35px;
+}
+
+.info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.info-box {
+    padding: 15px;
+    background: #1e293b;
+    border-radius: 10px;
+    border-left: 4px solid #38bdf8;
+}
+
+.info-box strong {
+    display: block;
+    color: #38bdf8;
+    margin-bottom: 5px;
+}
+
+.description {
+    margin-top: 20px;
+    padding: 20px;
+    background: #1e293b;
+    border-radius: 10px;
+    line-height: 1.6;
+}
+
+@media(max-width:700px) {
+    header h1 {
+        font-size: 28px;
+    }
+
+    .element-header {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>⚛️ LIVE PERIODIC TABLE</h1>
+    <p>Click an element to explore its information</p>
+</header>
+
+<div class="search">
+    <input
+        id="search"
+        type="text"
+        placeholder="🔎 Search element, symbol or atomic number..."
+        oninput="searchElements()"
+    >
+</div>
+
+<div class="table-container">
+    <div class="table" id="periodicTable"></div>
+</div>
+
+<div id="details">
+
+    <button class="close" onclick="closeDetails()">✕ Close</button>
+
+    <div class="element-header">
+
+        <div id="bigSymbol" class="big-symbol">
+            <span id="bigNumber"></span>
+            <b id="bigSymbolText"></b>
+        </div>
+
+        <div>
+            <h2 id="detailName"></h2>
+            <p id="detailCategory"></p>
+        </div>
+
+    </div>
+
+    <div class="info">
+
+        <div class="info-box">
+            <strong>Atomic Number</strong>
+            <span id="detailNumber"></span>
+        </div>
+
+        <div class="info-box">
+            <strong>Symbol</strong>
+            <span id="detailSymbol"></span>
+        </div>
+
+        <div class="info-box">
+            <strong>Atomic Mass</strong>
+            <span id="detailMass"></span>
+        </div>
+
+        <div class="info-box">
+            <strong>Group</strong>
+            <span id="detailGroup"></span>
+        </div>
+
+        <div class="info-box">
+            <strong>Period</strong>
+            <span id="detailPeriod"></span>
+        </div>
+
+        <div class="info-box">
+            <strong>Category</strong>
+            <span id="detailCategory2"></span>
+        </div>
+
+        <div class="info-box">
+            <strong>State</strong>
+            <span id="detailState"></span>
+        </div>
+
+        <div class="info-box">
+            <strong>Electron Configuration</strong>
+            <span id="detailElectron"></span>
+        </div>
+
+    </div>
+
+    <div class="description">
+        <h3>📚 About the Element</h3>
+        <p id="detailDescription"></p>
+    </div>
+
+</div>
+
+
+<script>
+
+/*
+===========================================
+ELEMENT DATA
+===========================================
+*/
+
+const elements = [
+
+["H","Hydrogen",1,"1.008","nonmetal",1,1,"Gas","1s¹"],
+["He","Helium",2,"4.0026","noble",18,1,"Gas","1s²"],
+
+["Li","Lithium",3,"6.94","alkali",1,2,"Solid","[He] 2s¹"],
+["Be","Beryllium",4,"9.0122","alkaline",2,2,"Solid","[He] 2s²"],
+["B","Boron",5,"10.81","metalloid",13,2,"Solid","[He] 2s² 2p¹"],
+["C","Carbon",6,"12.011","nonmetal",14,2,"Solid","[He] 2s² 2p²"],
+["N","Nitrogen",7,"14.007","nonmetal",15,2,"Gas","[He] 2s² 2p³"],
+["O","Oxygen",8,"15.999","nonmetal",16,2,"Gas","[He] 2s² 2p⁴"],
+["F","Fluorine",9,"18.998","halogen",17,2,"Gas","[He] 2s² 2p⁵"],
+["Ne","Neon",10,"20.180","noble",18,2,"Gas","[He] 2s² 2p⁶"],
+
+["Na","Sodium",11,"22.990","alkali",1,3,"Solid","[Ne] 3s¹"],
+["Mg","Magnesium",12,"24.305","alkaline",2,3,"Solid","[Ne] 3s²"],
+["Al","Aluminium",13,"26.982","post",13,3,"Solid","[Ne] 3s² 3p¹"],
+["Si","Silicon",14,"28.085","metalloid",14,3,"Solid","[Ne] 3s² 3p²"],
+["P","Phosphorus",15,"30.974","nonmetal",15,3,"Solid","[Ne] 3s² 3p³"],
+["S","Sulfur",16,"32.06","nonmetal",16,3,"Solid","[Ne] 3s² 3p⁴"],
+["Cl","Chlorine",17,"35.45","halogen",17,3,"Gas","[Ne] 3s² 3p⁵"],
+["Ar","Argon",18,"39.948","noble",18,3,"Gas","[Ne] 3s² 3p⁶"],
+
+["K","Potassium",19,"39.098","alkali",1,4,"Solid","[Ar] 4s¹"],
+["Ca","Calcium",20,"40.078","alkaline",2,4,"Solid","[Ar] 4s²"],
+["Sc","Scandium",21,"44.956","transition",3,4,"Solid","[Ar] 3d¹ 4s²"],
+["Ti","Titanium",22,"47.867","transition",4,4,"Solid","[Ar] 3d² 4s²"],
+["V","Vanadium",23,"50.942","transition",5,4,"Solid","[Ar] 3d³ 4s²"],
+["Cr","Chromium",24,"51.996","transition",6,4,"Solid","[Ar] 3d⁵ 4s¹"],
+["Mn","Manganese",25,"54.938","transition",7,4,"Solid","[Ar] 3d⁵ 4s²"],
+["Fe","Iron",26,"55.845","transition",8,4,"Solid","[Ar] 3d⁶ 4s²"],
+["Co","Cobalt",27,"58.933","transition",9,4,"Solid","[Ar] 3d⁷ 4s²"],
+["Ni","Nickel",28,"58.693","transition",10,4,"Solid","[Ar] 3d⁸ 4s²"],
+["Cu","Copper",29,"63.546","transition",11,4,"Solid","[Ar] 3d¹⁰ 4s¹"],
+["Zn","Zinc",30,"65.38","transition",12,4,"Solid","[Ar] 3d¹⁰ 4s²"],
+["Ga","Gallium",31,"69.723","post",13,4,"Solid","[Ar] 3d¹⁰ 4s² 4p¹"],
+["Ge","Germanium",32,"72.630","metalloid",14,4,"Solid","[Ar] 3d¹⁰ 4s² 4p²"],
+["As","Arsenic",33,"74.922","metalloid",15,4,"Solid","[Ar] 3d¹⁰ 4s² 4p³"],
+["Se","Selenium",34,"78.971","nonmetal",16,4,"Solid","[Ar] 3d¹⁰ 4s² 4p⁴"],
+["Br","Bromine",35,"79.904","halogen",17,4,"Liquid","[Ar] 3d¹⁰ 4s² 4p⁵"],
+["Kr","Krypton",36,"83.798","noble",18,4,"Gas","[Ar] 3d¹⁰ 4s² 4p⁶"],
+
+["Rb","Rubidium",37,"85.468","alkali",1,5,"Solid","[Kr] 5s¹"],
+["Sr","Strontium",38,"87.62","alkaline",2,5,"Solid","[Kr] 5s²"],
+["Y","Yttrium",39,"88.906","transition",3,5,"Solid","[Kr] 4d¹ 5s²"],
+["Zr","Zirconium",40,"91.224","transition",4,5,"Solid","[Kr] 4d² 5s²"],
+["Nb","Niobium",41,"92.906","transition",5,5,"Solid","[Kr] 4d⁴ 5s¹"],
+["Mo","Molybdenum",42,"95.95","transition",6,5,"Solid","[Kr] 4d⁵ 5s¹"],
+["Tc","Technetium",43,"98","transition",7,5,"Solid","[Kr] 4d⁵ 5s²"],
+["Ru","Ruthenium",44,"101.07","transition",8,5,"Solid","[Kr] 4d⁷ 5s¹"],
+["Rh","Rhodium",45,"102.91","transition",9,5,"Solid","[Kr] 4d⁸ 5s¹"],
+["Pd","Palladium",46,"106.42","transition",10,5,"Solid","[Kr] 4d¹⁰"],
+["Ag","Silver",47,"107.87","transition",11,5,"Solid","[Kr] 4d¹⁰ 5s¹"],
+["Cd","Cadmium",48,"112.41","transition",12,5,"Solid","[Kr] 4d¹⁰ 5s²"],
+["In","Indium",49,"114.82","post",13,5,"Solid","[Kr] 4d¹⁰ 5s² 5p¹"],
+["Sn","Tin",50,"118.71","post",14,5,"Solid","[Kr] 4d¹⁰ 5s² 5p²"],
+["Sb","Antimony",51,"121.76","metalloid",15,5,"Solid","[Kr] 4d¹⁰ 5s² 5p³"],
+["Te","Tellurium",52,"127.60","metalloid",16,5,"Solid","[Kr] 4d¹⁰ 5s² 5p⁴"],
+["I","Iodine",53,"126.90","halogen",17,5,"Solid","[Kr] 4d¹⁰ 5s² 5p⁵"],
+["Xe","Xenon",54,"131.29","noble",18,5,"Gas","[Kr] 4d¹⁰ 5s² 5p⁶"],
+
+["Cs","Cesium",55,"132.91","alkali",1,6,"Solid","[Xe] 6s¹"],
+["Ba","Barium",56,"137.33","alkaline",2,6,"Solid","[Xe] 6s²"],
+
+["La","Lanthanum",57,"138.91","lanthanide",3,6,"Solid","[Xe] 5d¹ 6s²"],
+["Ce","Cerium",58,"140.12","lanthanide",4,6,"Solid","[Xe] 4f¹ 5d¹ 6s²"],
+["Pr","Praseodymium",59,"140.91","lanthanide",5,6,"Solid","[Xe] 4f³ 6s²"],
+["Nd","Neodymium",60,"144.24","lanthanide",6,6,"Solid","[Xe] 4f⁴ 6s²"],
+["Pm","Promethium",61,"145","lanthanide",7,6,"Solid","[Xe] 4f⁵ 6s²"],
+["Sm","Samarium",62,"150.36","lanthanide",8,6,"Solid","[Xe] 4f⁶ 6s²"],
+["Eu","Europium",63,"151.96","lanthanide",9,6,"Solid","[Xe] 4f⁷ 6s²"],
+["Gd","Gadolinium",64,"157.25","lanthanide",10,6,"Solid","[Xe] 4f⁷ 5d¹ 6s²"],
+["Tb","Terbium",65,"158.93","lanthanide",11,6,"Solid","[Xe] 4f⁹ 6s²"],
+["Dy","Dysprosium",66,"162.50","lanthanide",12,6,"Solid","[Xe] 4f¹⁰ 6s²"],
+["Ho","Holmium",67,"164.93","lanthanide",13,6,"Solid","[Xe] 4f¹¹ 6s²"],
+["Er","Erbium",68,"167.26","lanthanide",14,6,"Solid","[Xe] 4f¹² 6s²"],
+["Tm","Thulium",69,"168.93","lanthanide",15,6,"Solid","[Xe] 4f¹³ 6s²"],
+["Yb","Ytterbium",70,"173.05","lanthanide",16,6,"Solid","[Xe] 4f¹⁴ 6s²"],
+["Lu","Lutetium",71,"174.97","lanthanide",17,6,"Solid","[Xe] 4f¹⁴ 5d¹ 6s²"],
+
+["Hf","Hafnium",72,"178.49","transition",4,6,"Solid","[Xe] 4f¹⁴ 5d² 6s²"],
+["Ta","Tantalum",73,"180.95","transition",5,6,"Solid","[Xe] 4f¹⁴ 5d³ 6s²"],
+["W","Tungsten",74,"183.84","transition",6,6,"Solid","[Xe] 4f¹⁴ 5d⁴ 6s²"],
+["Re","Rhenium",75,"186.21","transition",7,6,"Solid","[Xe] 4f¹⁴ 5d⁵ 6s²"],
+["Os","Osmium",76,"190.23","transition",8,6,"Solid","[Xe] 4f¹⁴ 5d⁶ 6s²"],
+["Ir","Iridium",77,"192.22","transition",9,6,"Solid","[Xe] 4f¹⁴ 5d⁷ 6s²"],
+["Pt","Platinum",78,"195.08","transition",10,6,"Solid","[Xe] 4f¹⁴ 5d⁹ 6s¹"],
+["Au","Gold",79,"196.97","transition",11,6,"Solid","[Xe] 4f¹⁴ 5d¹⁰ 6s¹"],
+["Hg","Mercury",80,"200.59","transition",12,6,"Liquid","[Xe] 4f¹⁴ 5d¹⁰ 6s²"],
+["Tl","Thallium",81,"204.38","post",13,6,"Solid","[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p¹"],
+["Pb","Lead",82,"207.2","post",14,6,"Solid","[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p²"],
+["Bi","Bismuth",83,"208.98","post",15,6,"Solid","[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p³"],
+["Po","Polonium",84,"209","post",16,6,"Solid","[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁴"],
+["At","Astatine",85,"210","halogen",17,6,"Solid","[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁵"],
+["Rn","Radon",86,"222","noble",18,6,"Gas","[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁶"],
+
+["Fr","Francium",87,"223","alkali",1,7,"Solid","[Rn] 7s¹"],
+["Ra","Radium",88,"226","alkaline",2,7,"Solid","[Rn] 7s²"],
+
+["Ac","Actinium",89,"227","actinide",3,7,"Solid","[Rn] 6d¹ 7s²"],
+["Th","Thorium",90,"232.04","actinide",4,7,"Solid","[Rn] 6d² 7s²"],
+["Pa","Protactinium",91,"231.04","actinide",5,7,"Solid","[Rn] 5f² 6d¹ 7s²"],
+["U","Uranium",92,"238.03","actinide",6,7,"Solid","[Rn] 5f³ 6d¹ 7s²"],
+["Np","Neptunium",93,"237","actinide",7,7,"Solid","[Rn] 5f⁴ 6d¹ 7s²"],
+["Pu","Plutonium",94,"244","actinide",8,7,"Solid","[Rn] 5f⁶ 7s²"],
+["Am","Americium",95,"243","actinide",9,7,"Solid","[Rn] 5f⁷ 7s²"],
+["Cm","Curium",96,"247","actinide",10,7,"Solid","[Rn] 5f⁷ 6d¹ 7s²"],
+["Bk","Berkelium",97,"247","actinide",11,7,"Solid","[Rn] 5f⁹ 7s²"],
+["Cf","Californium",98,"251","actinide",12,7,"Solid","[Rn] 5f¹⁰ 7s²"],
+["Es","Einsteinium",99,"252","actinide",13,7,"Solid","[Rn] 5f¹¹ 7s²"],
+["Fm","Fermium",100,"257","actinide",14,7,"Solid","[Rn] 5f¹² 7s²"],
+["Md","Mendelevium",101,"258","actinide",15,7,"Solid","[Rn] 5f¹³ 7s²"],
+["No","Nobelium",102,"259","actinide",16,7,"Solid","[Rn] 5f¹⁴ 7s²"],
+["Lr","Lawrencium",103,"266","actinide",17,7,"Solid","[Rn] 5f¹⁴ 7s² 7p¹"],
+
+["Rf","Rutherfordium",104,"267","transition",4,7,"Solid","[Rn] 5f¹⁴ 6d² 7s²"],
+["Db","Dubnium",105,"268","transition",5,7,"Solid","[Rn] 5f¹⁴ 6d³ 7s²"],
+["Sg","Seaborgium",106,"269","transition",6,7,"Solid","[Rn] 5f¹⁴ 6d⁴ 7s²"],
+["Bh","Bohrium",107,"270","transition",7,7,"Solid","[Rn] 5f¹⁴ 6d⁵ 7s²"],
+["Hs","Hassium",108,"277","transition",8,7,"Solid","[Rn] 5f¹⁴ 6d⁶ 7s²"],
+["Mt","Meitnerium",109,"278","transition",9,7,"Solid","[Rn] 5f¹⁴ 6d⁷ 7s²"],
+["Ds","Darmstadtium",110,"281","transition",10,7,"Solid","[Rn] 5f¹⁴ 6d⁹ 7s¹"],
+["Rg","Roentgenium",111,"282","transition",11,7,"Solid","[Rn] 5f¹⁴ 6d¹⁰ 7s¹"],
+["Cn","Copernicium",112,"285","transition",12,7,"Solid","[Rn] 5f¹⁴ 6d¹⁰ 7s²"],
+["Nh","Nihonium",113,"286","post",13,7,"Solid","[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p¹"],
+["Fl","Flerovium",114,"289","post",14,7,"Solid","[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p²"],
+["Mc","Moscovium",115,"290","post",15,7,"Solid","[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p³"],
+["Lv","Livermorium",116,"293","post",16,7,"Solid","[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁴"],
+["Ts","Tennessine",117,"294","halogen",17,7,"Solid","[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁵"],
+["Og","Oganesson",118,"294","noble",18,7,"Gas","[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁶"]
+
+];
+
+
+/*
+===========================================
+ELEMENT DESCRIPTIONS
+===========================================
+*/
+
+const descriptions = {
+
+H:"Hydrogen is the lightest element and the most abundant element in the universe. It is used in fuel cells, chemical production and many industrial processes.",
+
+He:"Helium is a chemically unreactive noble gas used in cryogenics, scientific equipment and balloons.",
+
+Li:"Lithium is a soft alkali metal commonly used in rechargeable batteries.",
+
+C:"Carbon is essential to life and forms many compounds. Important allotropes include diamond, graphite and graphene.",
+
+N:"Nitrogen is a major component of Earth's atmosphere and is important in proteins, DNA and fertilizers.",
+
+O:"Oxygen supports aerobic respiration and combustion and is essential for most forms of complex life.",
+
+Na:"Sodium is a highly reactive alkali metal. Its compounds have many uses in food, industry and chemistry.",
+
+Mg:"Magnesium is a lightweight metal used in alloys and is also an important element in biological systems.",
+
+Al:"Aluminium is lightweight, corrosion-resistant and widely used in construction, transportation and packaging.",
+
+Si:"Silicon is a semiconductor widely used in computers, electronics and solar technology.",
+
+Cl:"Chlorine is a reactive halogen used in water treatment and chemical manufacturing.",
+
+Fe:"Iron is an important transition metal used extensively in construction and steel production.",
+
+Cu:"Copper is an excellent electrical conductor and is widely used in electrical wiring.",
+
+Ag:"Silver has very high electrical and thermal conductivity and is used in electronics, jewelry and other applications.",
+
+Au:"Gold is a dense, relatively unreactive metal used in jewelry, electronics and finance.",
+
+Hg:"Mercury is a metallic element that is liquid at room temperature.",
+
+U:"Uranium is a radioactive element used as fuel in nuclear power systems.",
+
+Pu:"Plutonium is a radioactive element used in specialized nuclear applications.",
+
+default:"This element is a chemical element identified by its atomic number. Its properties depend on its position and electron configuration in the periodic table."
+
+};
+
+
+/*
+===========================================
+PERIODIC TABLE POSITION
+===========================================
+*/
+
+const table = document.getElementById("periodicTable");
+
+const specialPositions = {
+
+57:[3,6],
+58:[4,6],
+59:[5,6],
+60:[6,6],
+61:[7,6],
+62:[8,6],
+63:[9,6],
+64:[10,6],
+65:[11,6],
+66:[12,6],
+67:[13,6],
+68:[14,6],
+69:[15,6],
+70:[16,6],
+71:[17,6],
+
+89:[3,7],
+90:[4,7],
+91:[5,7],
+92:[6,7],
+93:[7,7],
+94:[8,7],
+95:[9,7],
+96:[10,7],
+97:[11,7],
+98:[12,7],
+99:[13,7],
+100:[14,7],
+101:[15,7],
+102:[16,7],
+103:[17,7]
+
+};
+
+
+/*
+===========================================
+DRAW TABLE
+===========================================
+*/
+
+function drawTable() {
+
+    table.innerHTML = "";
+
+    elements.forEach((e,index) => {
+
+        const symbol = e[0];
+        const name = e[1];
+        const number = e[2];
+        const mass = e[3];
+        const category = e[4];
+        const group = e[5];
+        const period = e[6];
+
+        let column = group;
+        let row = period;
+
+        if (specialPositions[number]) {
+
+            column = specialPositions[number][0];
+            row = specialPositions[number][1] + 2;
+
+        } else {
+
+            if (period === 6 && group >= 3) {
+                return;
+            }
+
+            if (period === 7 && group >= 3) {
+                return;
+            }
+
+        }
+
+        const div = document.createElement("div");
+
+        div.className = "element " + category;
+
+        div.style.gridColumn = column;
+        div.style.gridRow = row;
+
+        div.dataset.number = number;
+        div.dataset.name = name.toLowerCase();
+        div.dataset.symbol = symbol.toLowerCase();
+
+        div.innerHTML = `
+            <div class="number">${number}</div>
+            <div class="symbol">${symbol}</div>
+            <div class="name">${name}</div>
+            <div class="mass">${mass}</div>
+        `;
+
+        div.onclick = function() {
+            showElement(index);
+        };
+
+        table.appendChild(div);
+
+    });
+
+}
+
+
+/*
+===========================================
+SHOW ELEMENT
+===========================================
+*/
+
+function showElement(index) {
+
+    const e = elements[index];
+
+    const symbol = e[0];
+    const name = e[1];
+    const number = e[2];
+    const mass = e[3];
+    const category = e[4];
+    const group = e[5];
+    const period = e[6];
+    const state = e[7];
+    const electron = e[8];
+
+    document.getElementById("details").classList.add("show");
+
+    document.getElementById("bigNumber").textContent = number;
+
+    document.getElementById("bigSymbolText").textContent = symbol;
+
+    document.getElementById("detailName").textContent = name;
+
+    document.getElementById("detailCategory").textContent =
+        categoryName(category);
+
+    document.getElementById("detailNumber").textContent = number;
+
+    document.getElementById("detailSymbol").textContent = symbol;
+
+    document.getElementById("detailMass").textContent =
+        mass + " u";
+
+    document.getElementById("detailGroup").textContent =
+        group;
+
+    document.getElementById("detailPeriod").textContent =
+        period;
+
+    document.getElementById("detailCategory2").textContent =
+        categoryName(category);
+
+    document.getElementById("detailState").textContent =
+        state;
+
+    document.getElementById("detailElectron").textContent =
+        electron;
+
+    document.getElementById("detailDescription").textContent =
+        descriptions[symbol] || descriptions.default;
+
+    document.getElementById("details").scrollIntoView({
+        behavior:"smooth"
+    });
+
+}
+
+
+/*
+===========================================
+CATEGORY NAMES
+===========================================
+*/
+
+function categoryName(category) {
+
+    const names = {
+
+        alkali:"Alkali Metal",
+
+        alkaline:"Alkaline Earth Metal",
+
+        transition:"Transition Metal",
+
+        post:"Post-transition Metal",
+
+        metalloid:"Metalloid",
+
+        nonmetal:"Nonmetal",
+
+        halogen:"Halogen",
+
+        noble:"Noble Gas",
+
+        lanthanide:"Lanthanide",
+
+        actinide:"Actinide"
+
+    };
+
+    return names[category] || category;
+
+}
+
+
+/*
+===========================================
+CLOSE
+===========================================
+*/
+
+function closeDetails() {
+
+    document.getElementById("details")
+        .classList.remove("show");
+
+}
+
+
+/*
+===========================================
+SEARCH
+===========================================
+*/
+
+function searchElements() {
+
+    const query =
+        document.getElementById("search")
+        .value
+        .toLowerCase()
+        .trim();
+
+    const cards =
+        document.querySelectorAll(".element");
+
+    cards.forEach(card => {
+
+        const number =
+            card.dataset.number;
+
+        const name =
+            card.dataset.name;
+
+        const symbol =
+            card.dataset.symbol;
+
+        if (
+            name.includes(query) ||
+            symbol.includes(query) ||
+            number === query
+        ) {
+
+            card.style.display = "block";
+
+        } else {
+
+            card.style.display = "none";
+
+        }
+
+    });
+
+}
+
+
+/*
+===========================================
+START
+===========================================
+*/
+
+drawTable();
+
+</script>
+
+</body>
+</html>
+```

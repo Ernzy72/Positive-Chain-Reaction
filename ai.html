@@ -1,0 +1,1900 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Science AI Tutor</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+
+body {
+
+    min-height: 100vh;
+
+    font-family: Arial, sans-serif;
+
+    color: white;
+
+    background:
+        radial-gradient(
+            circle at 15% 20%,
+            #006eff,
+            transparent 30%
+        ),
+        radial-gradient(
+            circle at 85% 80%,
+            #8b00ff,
+            transparent 30%
+        ),
+        linear-gradient(
+            135deg,
+            #030712,
+            #0b1635,
+            #050817
+        );
+
+    padding: 15px;
+
+}
+
+
+.app {
+
+    width: 100%;
+
+    max-width: 1200px;
+
+    height: 94vh;
+
+    margin: auto;
+
+    display: flex;
+
+    flex-direction: column;
+
+    background: rgba(255,255,255,0.08);
+
+    border: 1px solid rgba(255,255,255,0.15);
+
+    border-radius: 22px;
+
+    backdrop-filter: blur(15px);
+
+    overflow: hidden;
+
+    box-shadow:
+        0 25px 70px rgba(0,0,0,0.5);
+
+}
+
+
+/* HEADER */
+
+header {
+
+    padding: 20px 25px;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    border-bottom:
+        1px solid rgba(255,255,255,0.12);
+
+}
+
+
+header h1 {
+
+    font-size: 27px;
+
+}
+
+
+header p {
+
+    color: #b6c5df;
+
+    margin-top: 5px;
+
+    font-size: 14px;
+
+}
+
+
+.status {
+
+    color: #54ff9b;
+
+    font-size: 13px;
+
+}
+
+
+/* MAIN */
+
+.main {
+
+    flex: 1;
+
+    display: grid;
+
+    grid-template-columns: 280px 1fr;
+
+    min-height: 0;
+
+}
+
+
+/* SIDEBAR */
+
+.sidebar {
+
+    padding: 20px;
+
+    border-right:
+        1px solid rgba(255,255,255,0.12);
+
+    overflow-y: auto;
+
+}
+
+
+.sidebar h2 {
+
+    font-size: 17px;
+
+    margin-bottom: 12px;
+
+}
+
+
+.upload-box {
+
+    padding: 20px;
+
+    text-align: center;
+
+    border: 2px dashed
+        rgba(255,255,255,0.25);
+
+    border-radius: 15px;
+
+    margin-bottom: 20px;
+
+}
+
+
+.upload-icon {
+
+    font-size: 45px;
+
+    margin-bottom: 10px;
+
+}
+
+
+.upload-box input {
+
+    width: 100%;
+
+    margin-top: 15px;
+
+}
+
+
+.file-name {
+
+    font-size: 12px;
+
+    color: #9fb2d5;
+
+    margin-top: 10px;
+
+    word-break: break-word;
+
+}
+
+
+/* BUTTONS */
+
+.action {
+
+    width: 100%;
+
+    padding: 12px;
+
+    margin-bottom: 9px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    color: white;
+
+    background:
+        linear-gradient(
+            135deg,
+            #087df5,
+            #722cf4
+        );
+
+    cursor: pointer;
+
+    font-size: 14px;
+
+}
+
+
+.action:hover {
+
+    transform: translateY(-2px);
+
+}
+
+
+.topic {
+
+    width: 100%;
+
+    padding: 10px;
+
+    margin-bottom: 7px;
+
+    border: none;
+
+    border-radius: 9px;
+
+    color: white;
+
+    background: rgba(255,255,255,0.08);
+
+    cursor: pointer;
+
+    text-align: left;
+
+}
+
+
+.topic:hover {
+
+    background: rgba(255,255,255,0.16);
+
+}
+
+
+/* CHAT */
+
+.chat-container {
+
+    display: flex;
+
+    flex-direction: column;
+
+    min-width: 0;
+
+    min-height: 0;
+
+    height: 100%;
+}
+
+
+.chat-title {
+
+    padding: 16px 20px;
+
+    border-bottom:
+        1px solid rgba(255,255,255,0.12);
+
+}
+
+
+.chat-title h2 {
+
+    font-size: 20px;
+
+}
+
+
+.chat-title p {
+
+    color: #98a9c7;
+
+    font-size: 12px;
+
+    margin-top: 4px;
+
+}
+
+
+#chat {
+
+    flex: 1;
+
+    min-height: 0;
+    
+    height: 0;
+
+    overflow-y: auto;
+
+    overflow-x: hidden;
+
+    padding: 22px;
+
+    scroll-behavior: smooth;
+}
+
+
+/* Scrollbar */
+
+#chat::-webkit-scrollbar {
+
+width: 8px;
+
+}
+
+#chat::-webkit-scrollbar-track {
+
+background: rgba(255,255,255,0.05);
+
+border-radius: 10px;
+
+}
+
+#chat::-webkit-scrollbar-thumb {
+
+background: rgba(255,255,255,0.3);
+
+border-radius: 10px;
+
+}
+
+#chat::-webkit-scrollbar-thumb {
+
+background: rgba(255,255,255,0.5);
+
+}
+
+/* Firefox */
+
+#chat {
+
+scrollbar-width: thin;
+
+scrollbar-color:
+    rgba(255,255,255,0.3)
+    rgba(255,255,255,0.05);
+
+}
+
+
+/* MESSAGES */
+
+.message {
+
+    display: flex;
+
+    gap: 10px;
+
+    margin-bottom: 20px;
+
+    max-width: 90%;
+
+}
+
+
+.user {
+
+    margin-left: auto;
+
+    flex-direction: row-reverse;
+
+}
+
+
+.avatar {
+
+    width: 38px;
+
+    height: 38px;
+
+    min-width: 38px;
+
+    border-radius: 50%;
+
+    background: rgba(255,255,255,0.12);
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+}
+
+
+.bubble {
+
+    padding: 14px 17px;
+
+    border-radius: 16px;
+
+    line-height: 1.6;
+
+    background: rgba(255,255,255,0.1);
+
+    overflow-wrap: anywhere;
+
+}
+
+
+.user .bubble {
+
+    background:
+        linear-gradient(
+            135deg,
+            #087df5,
+            #722cf4
+        );
+
+}
+
+
+.bubble strong {
+
+    display: block;
+
+    margin-bottom: 7px;
+
+}
+
+
+/* INPUT */
+
+.input-area {
+
+    display: flex;
+
+    gap: 10px;
+
+    padding: 15px;
+
+    border-top:
+        1px solid rgba(255,255,255,0.12);
+
+}
+
+
+textarea {
+
+    flex: 1;
+
+    resize: none;
+
+    border: none;
+
+    outline: none;
+
+    border-radius: 12px;
+
+    padding: 14px;
+
+    background: rgba(0,0,0,0.3);
+
+    color: white;
+
+    font-family: Arial;
+
+    font-size: 15px;
+
+}
+
+
+textarea::placeholder {
+
+    color: #8c9bb8;
+
+}
+
+
+#send {
+
+    width: 55px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #008cff,
+            #712cff
+        );
+
+    color: white;
+
+    font-size: 21px;
+
+    cursor: pointer;
+
+}
+
+
+/* QUIZ */
+
+.quiz {
+
+    margin-top: 10px;
+
+}
+
+
+.quiz-question {
+
+    font-weight: bold;
+
+    margin-bottom: 12px;
+
+}
+
+
+.quiz-option {
+
+    display: block;
+
+    width: 100%;
+
+    padding: 11px;
+
+    margin: 7px 0;
+
+    text-align: left;
+
+    border: none;
+
+    border-radius: 9px;
+
+    background: rgba(255,255,255,0.1);
+
+    color: white;
+
+    cursor: pointer;
+
+}
+
+
+.quiz-option:hover {
+
+    background: rgba(255,255,255,0.2);
+
+}
+
+
+.quiz-option.correct {
+
+    background: #168f5a;
+
+}
+
+
+.quiz-option.wrong {
+
+    background: #a52b3c;
+
+}
+
+
+.score {
+
+    margin-top: 15px;
+
+    font-weight: bold;
+
+}
+
+
+/* MOBILE */
+
+@media(max-width:800px) {
+
+    body {
+
+        padding: 0;
+
+    }
+
+
+    .app {
+
+        height: 100vh;
+
+        border-radius: 0;
+
+    }
+
+
+    .main {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .sidebar {
+
+        border-right: none;
+
+        border-bottom:
+            1px solid rgba(255,255,255,0.12);
+
+        max-height: 240px;
+
+    }
+
+
+    .message {
+
+        max-width: 96%;
+
+    }
+
+}
+
+
+@media(max-width:500px) {
+
+    header {
+
+        padding: 15px;
+
+    }
+
+
+    header h1 {
+
+        font-size: 20px;
+
+    }
+
+
+    header p {
+
+        font-size: 11px;
+
+    }
+
+
+    .status {
+
+        display: none;
+
+    }
+
+
+    .input-area {
+
+        padding: 10px;
+
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="app">
+
+<!-- HEADER -->
+
+<header>
+
+```
+<div>
+
+    <h1>🤖 Science AI Tutor</h1>
+
+    <p>
+        Science answers • Book summaries • AI quizzes
+    </p>
+
+</div>
+
+<div class="status">
+    ● Ready
+</div>
+```
+
+</header>
+
+<div class="main">
+
+<!-- SIDEBAR -->
+
+<aside class="sidebar">
+
+<h2>📚 Upload Book</h2>
+
+<div class="upload-box">
+
+```
+<div class="upload-icon">
+    📖
+</div>
+
+<p>
+    Upload a TXT book
+</p>
+
+<input
+    type="file"
+    id="bookFile"
+    accept=".txt"
+>
+
+<div
+    class="file-name"
+    id="fileName">
+
+    No book selected
+
+</div>
+```
+
+</div>
+
+<h2>📖 Book Tools</h2>
+
+<button
+ class="action"
+ onclick="summarizeBook()">
+
+```
+📝 Summarize Book
+```
+
+</button>
+
+<button
+ class="action"
+ onclick="chapterSummary()">
+
+```
+📚 Chapter Summary
+```
+
+</button>
+
+<button
+ class="action"
+ onclick="generateQuiz()">
+
+```
+❓ Generate Quiz
+```
+
+</button>
+
+<button
+ class="action"
+ onclick="clearChat()">
+
+```
+🗑 Clear Chat
+```
+
+</button>
+
+<h2>🔬 Science Topics</h2>
+
+<button
+ class="topic"
+ onclick="quickQuestion('Explain Ohm law.')">
+
+```
+⚡ Physics — Ohm's Law
+```
+
+</button>
+
+<button
+ class="topic"
+ onclick="quickQuestion('Explain Dalton atomic theory.')">
+
+```
+🧪 Chemistry — Atoms
+```
+
+</button>
+
+<button
+ class="topic"
+ onclick="quickQuestion('What is photosynthesis?')">
+
+```
+🧬 Biology — Photosynthesis
+```
+
+</button>
+
+<button
+ class="topic"
+ onclick="quickQuestion('Explain Newton laws of motion.')">
+
+```
+⚙️ Physics — Newton's Laws
+```
+
+</button>
+
+</aside>
+
+<!-- CHAT -->
+
+<section class="chat-container">
+
+<div class="chat-title">
+
+```
+<h2>
+    💬 AI Assistant
+</h2>
+
+<p>
+    Ask science questions or ask about your uploaded book.
+</p>
+```
+
+</div>
+
+<div id="chat">
+
+<div class="message ai">
+
+```
+<div class="avatar">
+    🤖
+</div>
+
+<div class="bubble">
+
+    <strong>
+        Science AI
+    </strong>
+
+    Hello! 👋
+
+    <br><br>
+
+    I can help you with:
+
+    <br><br>
+
+    🧪 Chemistry<br>
+    ⚡ Physics<br>
+    🧬 Biology<br>
+    🌍 Environmental Science<br>
+    📚 Book summaries<br>
+    ❓ Book quizzes
+
+    <br><br>
+
+    Upload a TXT book and click
+    <b>Summarize Book</b> or
+    <b>Generate Quiz</b>.
+
+</div>
+```
+
+</div>
+
+</div>
+
+<div class="input-area">
+
+<textarea
+    id="question"
+    rows="1"
+    placeholder="Ask a science question or ask about your book...">
+</textarea>
+
+<button
+ id="send"
+ onclick="ask()">
+
+```
+➤
+```
+
+</button>
+
+</div>
+
+</section>
+
+</div>
+
+</div>
+
+<script>
+
+
+/* =====================================
+   BOOK VARIABLES
+===================================== */
+
+let bookText = "";
+
+let bookName = "";
+
+
+
+/* =====================================
+   FILE UPLOAD
+===================================== */
+
+document
+.getElementById("bookFile")
+.addEventListener(
+    "change",
+    function(event) {
+
+
+    const file =
+        event.target.files[0];
+
+
+    if (!file)
+        return;
+
+
+    bookName =
+        file.name;
+
+
+    document
+    .getElementById("fileName")
+    .textContent =
+        "📄 " + bookName;
+
+
+    const reader =
+        new FileReader();
+
+
+    reader.onload =
+        function(e) {
+
+
+        bookText =
+            e.target.result;
+
+
+        addAI(
+
+            "✅ Book uploaded successfully!\n\n" +
+
+            "File: " +
+            bookName +
+
+            "\n\n" +
+
+            "Characters: " +
+            bookText.length +
+
+            "\n\n" +
+
+            "You can now summarize the book, create a chapter summary, or generate a quiz."
+
+        );
+
+    };
+
+
+    reader.readAsText(file);
+
+});
+
+
+
+/* =====================================
+   ADD MESSAGE
+===================================== */
+
+function addMessage(text, type) {
+
+
+    const chat =
+        document.getElementById("chat");
+
+
+    const message =
+        document.createElement("div");
+
+
+    message.className =
+        "message " + type;
+
+
+    message.innerHTML = `
+
+        <div class="avatar">
+
+            ${type === "ai"
+                ? "🤖"
+                : "👤"}
+
+        </div>
+
+        <div class="bubble">
+
+            <strong>
+                ${type === "ai"
+                    ? "Science AI"
+                    : "You"}
+            </strong>
+
+            ${formatText(text)}
+
+        </div>
+
+    `;
+
+
+    chat.appendChild(message);
+
+
+    chat.scrollTop =
+        chat.scrollHeight;
+
+}
+
+
+
+function addAI(text) {
+
+    addMessage(
+        text,
+        "ai"
+    );
+
+}
+
+
+
+function formatText(text) {
+
+    return text
+
+        .replace(/&/g, "&amp;")
+
+        .replace(/</g, "&lt;")
+
+        .replace(/>/g, "&gt;")
+
+        .replace(/\n/g, "<br>");
+
+}
+
+
+
+/* =====================================
+   ASK SCIENCE AI
+===================================== */
+
+function ask() {
+
+
+    const input =
+        document.getElementById("question");
+
+
+    const question =
+        input.value.trim();
+
+
+    if (!question)
+        return;
+
+
+    addMessage(
+        question,
+        "user"
+    );
+
+
+    input.value = "";
+
+
+    setTimeout(
+
+        function() {
+
+            const answer =
+                scienceAI(question);
+
+
+            addAI(answer);
+
+        },
+
+        400
+
+    );
+
+}
+
+
+
+function quickQuestion(text) {
+
+    document
+    .getElementById("question")
+    .value = text;
+
+
+    ask();
+
+}
+
+
+
+/* =====================================
+   SCIENCE AI
+===================================== */
+
+function scienceAI(question) {
+
+
+    const q =
+        question.toLowerCase();
+
+
+
+    if (
+        q.includes("ohm")
+    ) {
+
+        return `
+
+Ohm's Law describes the relationship between voltage, current and resistance.
+
+Formula:
+
+V = I × R
+
+Where:
+
+V = voltage in volts
+I = current in amperes
+R = resistance in ohms
+
+Example:
+
+V = 12 V
+I = 2 A
+
+R = V / I
+
+R = 12 / 2
+
+R = 6 Ω
+
+Therefore, the resistance is 6 Ω.
+
+`;
+
+    }
+
+
+
+    if (
+        q.includes("dalton") &&
+        q.includes("atomic")
+    ) {
+
+        return `
+
+Dalton's Atomic Theory states that:
+
+1. Matter is made up of atoms.
+
+2. Atoms of the same element have similar properties.
+
+3. Atoms of different elements are different.
+
+4. Atoms combine in simple whole-number ratios.
+
+5. Chemical reactions involve rearrangement of atoms.
+
+Modern science has shown that atoms contain smaller particles such as protons, neutrons and electrons.
+
+`;
+
+    }
+
+
+
+    if (
+        q.includes("photosynthesis")
+    ) {
+
+        return `
+
+Photosynthesis is the process by which green plants make food using light energy.
+
+The word equation is:
+
+Carbon dioxide + Water
+→ Glucose + Oxygen
+
+The process requires:
+
+• Light
+• Chlorophyll
+• Carbon dioxide
+• Water
+
+The process mainly occurs in chloroplasts.
+
+`;
+
+    }
+
+
+
+    if (
+        q.includes("newton") &&
+        q.includes("law")
+    ) {
+
+        return `
+
+Newton's three laws of motion are:
+
+First Law:
+An object remains at rest or in uniform motion unless acted upon by an external force.
+
+Second Law:
+
+F = ma
+
+Force equals mass multiplied by acceleration.
+
+Third Law:
+For every action there is an equal and opposite reaction.
+
+`;
+
+    }
+
+
+
+    if (
+        q.includes("mole")
+    ) {
+
+        return `
+
+The mole is a unit used to measure the amount of substance.
+
+Formula:
+
+n = m / M
+
+Where:
+
+n = number of moles
+m = mass
+M = molar mass
+
+Example:
+
+Mass = 18 g
+Molar mass = 18 g/mol
+
+n = 18 / 18
+
+n = 1 mol
+
+`;
+
+    }
+
+
+
+    if (
+        q.includes("gravity")
+    ) {
+
+        return `
+
+Gravity is the force of attraction between masses.
+
+Near Earth's surface:
+
+g ≈ 9.8 m/s²
+
+Weight is calculated using:
+
+W = mg
+
+Where:
+
+W = weight in newtons
+m = mass in kilograms
+g = gravitational acceleration
+
+`;
+
+    }
+
+
+
+    if (
+        q.includes("cell")
+    ) {
+
+        return `
+
+A cell is the basic structural and functional unit of life.
+
+Important cell structures include:
+
+Nucleus:
+Controls many cell activities.
+
+Cell membrane:
+Controls substances entering and leaving the cell.
+
+Cytoplasm:
+Where many chemical reactions occur.
+
+Mitochondria:
+Site of aerobic respiration.
+
+Chloroplast:
+Site of photosynthesis in plant cells.
+
+`;
+
+    }
+
+
+
+    return `
+
+I don't have a specific built-in answer for that question yet.
+
+Try asking me about:
+
+🧪 Chemistry
+⚡ Physics
+🧬 Biology
+🌍 Environmental Science
+
+Or upload a book and ask me to summarize it.
+
+`;
+
+}
+
+
+
+/* =====================================
+   BOOK CHECK
+===================================== */
+
+function checkBook() {
+
+
+    if (!bookText) {
+
+        addAI(
+            "⚠️ Please upload a TXT book first."
+        );
+
+        return false;
+
+    }
+
+
+    return true;
+
+}
+
+
+
+/* =====================================
+   BOOK SUMMARY
+===================================== */
+
+function summarizeBook() {
+
+
+    if (!checkBook())
+        return;
+
+
+    addAI(
+        "📝 Analyzing your book and creating a summary..."
+    );
+
+
+    setTimeout(
+
+        function() {
+
+
+        const sentences =
+
+            bookText
+
+            .replace(/\s+/g, " ")
+
+            .split(/[.!?]+/)
+
+            .filter(
+                sentence =>
+                sentence.trim().length > 30
+            );
+
+
+        if (sentences.length === 0) {
+
+            addAI(
+                "I couldn't find enough readable text in the file."
+            );
+
+            return;
+
+        }
+
+
+        /* Select important-looking sentences */
+
+        const selected =
+            sentences.slice(
+                0,
+                Math.min(12, sentences.length)
+            );
+
+
+        const summary =
+            selected.join(". ") + ".";
+
+
+        addAI(
+
+            "📝 BOOK SUMMARY\n\n" +
+
+            summary
+
+        );
+
+
+        },
+
+        700
+
+    );
+
+}
+
+
+
+/* =====================================
+   CHAPTER SUMMARY
+===================================== */
+
+function chapterSummary() {
+
+
+    if (!checkBook())
+        return;
+
+
+    addAI(
+        "📚 Dividing the book into sections and creating chapter summaries..."
+    );
+
+
+    setTimeout(
+
+        function() {
+
+
+        const words =
+            bookText
+            .split(/\s+/);
+
+
+        const chapters = 5;
+
+
+        const wordsPerChapter =
+            Math.ceil(
+                words.length / chapters
+            );
+
+
+        let result =
+            "📚 CHAPTER-STYLE SUMMARY\n\n";
+
+
+        for (
+            let i = 0;
+            i < chapters;
+            i++
+        ) {
+
+
+            const start =
+                i * wordsPerChapter;
+
+
+            const end =
+                start + wordsPerChapter;
+
+
+            const section =
+                words
+                .slice(start, end)
+                .join(" ");
+
+
+            if (!section)
+                continue;
+
+
+            result +=
+                "CHAPTER " +
+                (i + 1) +
+                "\n";
+
+
+            result +=
+                section.substring(
+                    0,
+                    700
+                );
+
+
+            result +=
+                "\n\n";
+
+        }
+
+
+        addAI(result);
+
+
+        },
+
+        700
+
+    );
+
+}
+
+
+
+/* =====================================
+   QUIZ GENERATOR
+===================================== */
+
+function generateQuiz() {
+
+
+    if (!checkBook())
+        return;
+
+
+    addAI(
+        "❓ Reading the book and creating your quiz..."
+    );
+
+
+    setTimeout(
+
+        function() {
+
+
+        const sentences =
+
+            bookText
+
+            .replace(/\s+/g, " ")
+
+            .split(/[.!?]+/)
+
+            .filter(
+                sentence =>
+                sentence.trim().length > 40
+            );
+
+
+        if (sentences.length < 3) {
+
+            addAI(
+                "⚠️ There is not enough text to generate a quiz."
+            );
+
+            return;
+
+        }
+
+
+        let quizHTML =
+
+            "<strong>❓ BOOK QUIZ</strong>" +
+
+            "<br><br>";
+
+
+        const numberOfQuestions =
+            Math.min(
+                5,
+                sentences.length
+            );
+
+
+        for (
+            let i = 0;
+            i < numberOfQuestions;
+            i++
+        ) {
+
+
+            const correct =
+                sentences[i]
+                .trim()
+                .substring(0, 150);
+
+
+            quizHTML += `
+
+                <div class="quiz">
+
+                    <div class="quiz-question">
+
+                        ${i + 1}.
+                        Which statement is taken from the uploaded book?
+
+                    </div>
+
+                    <button
+                        class="quiz-option"
+                        onclick="answerQuiz(this, true)">
+
+                        A. ${escapeHTML(correct)}
+
+                    </button>
+
+
+                    <button
+                        class="quiz-option"
+                        onclick="answerQuiz(this, false)">
+
+                        B. The book contains no information about its subject.
+
+                    </button>
+
+
+                    <button
+                        class="quiz-option"
+                        onclick="answerQuiz(this, false)">
+
+                        C. The subject discussed in the book does not exist.
+
+                    </button>
+
+
+                    <button
+                        class="quiz-option"
+                        onclick="answerQuiz(this, false)">
+
+                        D. None of the above.
+
+                    </button>
+
+                </div>
+
+            `;
+
+        }
+
+
+        quizHTML +=
+            '<div class="score" id="score">Score: 0</div>';
+
+
+        const message =
+            document.createElement("div");
+
+
+        message.className =
+            "message ai";
+
+
+        message.innerHTML = `
+
+            <div class="avatar">
+                🤖
+            </div>
+
+            <div class="bubble">
+
+                ${quizHTML}
+
+            </div>
+
+        `;
+
+
+        document
+        .getElementById("chat")
+        .appendChild(message);
+
+
+        document
+        .getElementById("chat")
+        .scrollTop =
+        document
+        .getElementById("chat")
+        .scrollHeight;
+
+
+        },
+
+        700
+
+    );
+
+}
+
+
+
+/* =====================================
+   QUIZ ANSWERS
+===================================== */
+
+let score = 0;
+
+
+function answerQuiz(button, correct) {
+
+
+    const buttons =
+        button
+        .parentElement
+        .querySelectorAll(
+            ".quiz-option"
+        );
+
+
+    buttons.forEach(
+        b => b.disabled = true
+    );
+
+
+    if (correct) {
+
+        button.classList.add(
+            "correct"
+        );
+
+        score++;
+
+    } else {
+
+        button.classList.add(
+            "wrong"
+        );
+
+    }
+
+
+    const scoreElement =
+        document.getElementById(
+            "score"
+        );
+
+
+    if (scoreElement) {
+
+        scoreElement.textContent =
+            "Score: " + score;
+
+    }
+
+}
+
+
+
+/* =====================================
+   ESCAPE HTML
+===================================== */
+
+function escapeHTML(text) {
+
+    return text
+
+        .replace(/&/g, "&amp;")
+
+        .replace(/</g, "&lt;")
+
+        .replace(/>/g, "&gt;")
+
+        .replace(/"/g, "&quot;")
+
+        .replace(/'/g, "&#039;");
+
+}
+
+
+
+/* =====================================
+   CLEAR CHAT
+===================================== */
+
+function clearChat() {
+
+
+    document
+    .getElementById("chat")
+    .innerHTML = `
+
+        <div class="message ai">
+
+            <div class="avatar">
+                🤖
+            </div>
+
+            <div class="bubble">
+
+                <strong>
+                    Science AI
+                </strong>
+
+                Chat cleared! 🧹
+
+                <br><br>
+
+                Upload a book or ask me a science question.
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    score = 0;
+
+}
+
+
+</script>
+
+</body>
+
+</html>
